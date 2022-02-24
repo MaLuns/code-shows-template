@@ -1,0 +1,86 @@
+.code-list {
+    position : absolute;
+    left     : 0;
+    right    : 0;
+    max-width: 1020px;
+    width    : content;
+    margin   : 40px auto;
+    display  : flex;
+    flex-wrap: wrap;
+
+    .code-item {
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        font-size                  : 14px;
+        line-height                : 1.42857143;
+        color                      : #333;
+        font-family                : "微软雅黑";
+        box-sizing                 : border-box;
+        min-height                 : 1px;
+        margin                     : 20px;
+        background-color           : #FFF;
+        border-radius              : 5px;
+        box-shadow                 : 0 1px 3px rgba(0, 0, 0, 0.18);
+        position                   : relative;
+        transition                 : all 1s ease 0s;
+        overflow                   : hidden;
+        width                      : 300px;
+
+        .code-ifr {
+            width : 300px;
+            height: 200px;
+        }
+
+        iframe {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            font-size                  : 14px;
+            line-height                : 1.42857143;
+            color                      : #333;
+            font-family                : "微软雅黑";
+            margin                     : 0;
+            padding                    : 0;
+            outline                    : none;
+            width                      : 200%;
+            height                     : 200%;
+            background                 : white;
+            border                     : 0;
+            overflow                   : hidden;
+            box-sizing                 : border-box;
+            transform                  : scale(0.5);
+            transform-origin           : top left;
+        }
+
+        .cover-info {
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+            font-size                  : 14px;
+            line-height                : 1.42857143;
+            color                      : #333;
+            font-family                : "微软雅黑";
+            box-sizing                 : border-box;
+            padding                    : 6px 15px 28px;
+            height                     : 80px;
+            overflow                   : hidden;
+
+            h4 {
+                font-size    : 14px;
+                overflow     : hidden;
+                text-overflow: ellipsis;
+                word-break   : keep-all;
+                white-space  : nowrap;
+                display      : block;
+                font-weight  : bold;
+                line-height  : 18px;
+                margin-top   : 7px;
+                margin-bottom: 5px;
+            }
+
+            a {
+                color: #60BDE8;
+            }
+
+            small {
+                color         : #838383;
+                padding-bottom: 10px;
+            }
+        }
+    }
+}

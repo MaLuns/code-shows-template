@@ -1,0 +1,18 @@
+{
+    "site": {
+        "title": "code-shows",
+        "subtitle": "",
+        "description": "",
+        "keywords": " ",
+        "author": "author",
+        "language": "zh-Hans",
+        "url": "",
+        "root": "./"
+    },
+    "index_generator": {
+        "path": "",
+        "per_page": 10,
+        "order_by": "-date"
+    },
+    "source_dir": "source"
+}

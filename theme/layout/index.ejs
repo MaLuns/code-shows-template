@@ -1,0 +1,36 @@
+---
+layout: false
+---
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= config.site.title %></title>
+    <%- css('asset/styles/index') %>
+</head>
+<body>
+    <main class="code-list">
+        <% page.codes.forEach((code)=>{ %>
+            <div class="code-item">
+                <div class="code-ifr">
+                    <iframe src="<%= code.path %>" sandbox="allow-scripts allow-same-origin" scrolling='no'></iframe>
+                </div>
+                <div class="cover-info">
+                    <a href="<%= code.path %>" target="_blank">
+                        <h4>
+                            <%= code.title %>
+                        </h4>
+                    </a>
+                    <small>
+                        <%= code.description %>
+                    </small>
+                </div>
+            </div>
+            <% }) %>
+    </main>
+</body>
+
+</html>
