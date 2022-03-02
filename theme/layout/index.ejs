@@ -2,7 +2,7 @@
 layout: false
 ---
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= config.site.language %>">
 
 <head>
     <meta charset="UTF-8">
@@ -16,10 +16,10 @@ layout: false
         <% page.codes.forEach((code)=>{ %>
             <div class="code-item">
                 <div class="code-ifr">
-                    <iframe src="<%= code.path %>" sandbox="allow-scripts allow-same-origin" scrolling='no'></iframe>
+                    <iframe src="<%= url_format(code.route_url) %>" sandbox="allow-scripts allow-same-origin" scrolling='no'></iframe>
                 </div>
                 <div class="cover-info">
-                    <a href="<%= code.path %>" target="_blank">
+                    <a href="<%= url_format(code.route_url) %>" target="_blank">
                         <h4>
                             <%= code.title %>
                         </h4>
@@ -31,6 +31,7 @@ layout: false
             </div>
             <% }) %>
     </main>
+    <%- paginator() %>
 </body>
 
 </html>
