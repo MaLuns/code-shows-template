@@ -8,29 +8,33 @@ layout: false
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= config.site.title %></title>
+    <title>
+        <%= config.site.title %>
+    </title>
     <%- css('asset/styles/index') %>
 </head>
+
 <body>
-    <main class="code-list">
+    <div class="code-list">
         <% page.codes.forEach((code)=>{ %>
             <div class="code-item">
                 <div class="code-ifr">
+                    <a href="<%= url_format(code.route_url)+'editor' %>" class="btn-editor" target="_blank">在线编辑</a>
                     <iframe src="<%= url_format(code.route_url) %>" sandbox="allow-scripts allow-same-origin" scrolling='no'></iframe>
                 </div>
                 <div class="cover-info">
-                    <a href="<%= url_format(code.route_url) %>" target="_blank">
-                        <h4>
+                    <h4>
+                        <a href="<%= url_format(code.route_url) %>" target="_blank">
                             <%= code.title %>
-                        </h4>
-                    </a>
+                        </a>
+                    </h4>
                     <small>
                         <%= code.description %>
                     </small>
                 </div>
             </div>
             <% }) %>
-    </main>
+    </div>
     <%- paginator() %>
 </body>
 
