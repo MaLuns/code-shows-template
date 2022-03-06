@@ -23,7 +23,7 @@
     "default_layout": "view",
     "pagination": {
         "dir": "page",
-        "per_page": 12,
+        "per_page": 6,
         "order_by": [
             "date",
             "desc"

@@ -15,27 +15,29 @@ layout: false
 </head>
 
 <body>
+    <%- include('header') %>
     <div class="code-list">
         <% page.codes.forEach((code)=>{ %>
             <div class="code-item">
                 <div class="code-ifr">
-                    <a href="<%= url_format(code.route_url)+'editor' %>" class="btn-editor" target="_blank">在线编辑</a>
                     <iframe src="<%= url_format(code.route_url) %>" sandbox="allow-scripts allow-same-origin" scrolling='no'></iframe>
+                    <!-- <a class="btn-editor" href="<%= url_format(code.route_url)+'editor' %>" target="_blank"></a> -->
                 </div>
-                <div class="cover-info">
+                <div class="code-info">
                     <h4>
                         <a href="<%= url_format(code.route_url) %>" target="_blank">
                             <%= code.title %>
                         </a>
                     </h4>
-                    <small>
+                    <p class="small">
                         <%= code.description %>
-                    </small>
+                    </p>
                 </div>
             </div>
             <% }) %>
     </div>
     <%- paginator() %>
+    <script src="//cdn.jsdelivr.net/npm/lodash@4.17.19/lodash.min.js"></script>
 </body>
 
 </html>

@@ -10,31 +10,70 @@ a {
 }
 
 body {
-    background: #f2f2f2;
+    background      : #f2f2f2;
+    background-image: url(https://file.iviewui.com/admin-pro-dist/img/body.8aa7c4a6.svg);
+}
+
+.header {
+    height     : 350px;
+    position   : relative;
+    user-select: none;
+
+    .content {
+        position   : absolute;
+        left       : 0;
+        right      : 0;
+        top        : 0;
+        bottom     : 0;
+        height     : 80px;
+        margin     : auto;
+        text-align : center;
+        text-shadow: 0px 20px 10px #adadadd9;
+
+        h2 {
+            color      : #353535;
+            font-size  : 50px;
+            line-height: 50px;
+        }
+
+        h3 {
+            color      : #353535;
+            font-weight: 300;
+            line-height: 40px;
+        }
+    }
 }
 
 .code-list {
-    width    : 1020px;
-    margin   : 0 auto;
+    width    : 960px;
+    margin   : 0px auto;
     font-size: 0;
 
     .code-item {
         font-size    : 1rem;
         display      : inline-block;
-        margin       : 10px;
+        margin       : 20px;
         position     : relative;
         overflow     : hidden;
-        width        : 320px;
+        width        : 280px;
         border-radius: 8px;
         background   : linear-gradient(145deg, #dadada, #ffffff);
         box-shadow   : 30px 30px 60px #cecece,
             -30px -30px 60px #ffffff;
 
         .code-ifr {
-            height  : 200px;
+            height  : 160px;
+            overflow: hidden;
             position: relative;
             z-index : 1;
-            overflow: hidden;
+
+            .btn-editor {
+                display : block;
+                position: absolute;
+                top     : 0;
+                width   : 100%;
+                height  : 100%;
+            }
 
             iframe {
                 margin          : 0;
@@ -49,42 +88,41 @@ body {
                 transform       : scale(0.5);
                 transform-origin: top left;
             }
-
-            .btn-editor {
-                position     : absolute;
-                top          : 0;
-                right        : 0;
-                z-index      : 2;
-                border-radius: 0px;
-                padding      : 5px 10px;
-                border-radius: 0px;
-                background   : linear-gradient(225deg, #d1d1d1, #f8f8f8);
-                box-shadow   : inset -6px 6px 12px #c5c5c5,
-                    inset 6px -6px 12px #ffffff;
-            }
         }
 
-        .cover-info {
-            padding        : 10px 15px;
-            height         : 100px;
+        .code-info {
+            padding        : 10px;
             overflow       : hidden;
             text-decoration: none;
 
             h4 {
                 font-size    : 14px;
-                overflow     : hidden;
                 text-overflow: ellipsis;
                 word-break   : keep-all;
                 white-space  : nowrap;
                 display      : block;
                 font-weight  : bold;
-                line-height  : 18px;
-                margin       : 8px 0 6px;
+                overflow     : hidden;
+                margin       : 0 0 6px 0;
+
+                a {
+                    color     : #515599;
+                    transition: color .3s;
+
+                    &:hover {
+                        color: #5e66d6;
+                    }
+                }
             }
 
-            small {
-                color      : #838383;
-                font-weight: 300;
+            .small {
+                color        : #838383;
+                font-size    : 14px;
+                font-weight  : 300;
+                text-overflow: ellipsis;
+                word-break   : keep-all;
+                white-space  : nowrap;
+                overflow     : hidden;
             }
         }
     }
@@ -121,14 +159,8 @@ body {
                 -4px -4px 8px #ffffff !important;
         }
 
-
-    }
-
-    .btn-prev,
-    .btn-next {
-        transition: box-shadow .3s;
-
-        &:hover {
+        &.current,
+        &:active {
             background: #f2f2f2;
             box-shadow:
                 inset 4px 4px 8px #cecece,
@@ -136,21 +168,5 @@ body {
                 0px 0px 0px #cecece,
                 0px -0px 0px #ffffff;
         }
-    }
-
-    .number {
-        transition: box-shadow .3s;
-
-        &:hover,
-        &.current {
-            font-weight: 600;
-            background : #f2f2f2;
-            box-shadow :
-                inset 4px 4px 8px #cecece,
-                inset -4px -4px 8px #ffffff,
-                0px 0px 0px #cecece,
-                0px 0px 0px #ffffff;
-        }
-
     }
 }
