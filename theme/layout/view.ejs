@@ -1,7 +1,7 @@
 <head>
     <%- include('head') %>
     <%- js(page.cdn) %>
-    <%- tag('style', page.code.css) %>
+    <%- tag('style', page.code.style.text) %>
 </head>
 
-<%- tag('body',{style:'padding: 0;margin: 0;'}, [page.code.html,tag('script', page.code.javascript)]) %>
+<%- tag('body',{style:'margin: 0;'}, [page.code.html.text,tag('script', page.code.script.text)]) %>
