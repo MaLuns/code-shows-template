@@ -1,21 +1,14 @@
----
-layout: false
----
-<!DOCTYPE html>
-<html lang="<%= config.site.language %>">
-
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        <%= config.site.title %>
-    </title>
+    <%- include('head') %>
     <%- css('asset/styles/index') %>
 </head>
-
 <body>
-    <%- include('header') %>
+    <header class="header">
+        <div class="content">
+            <h2>Interesting code</h2>
+            <h3>All code is open-source and free to use</h3>
+        </div>
+    </header>
     <div class="code-list">
         <% page.codes.forEach((code)=>{ %>
             <div class="code-item">
@@ -39,5 +32,3 @@ layout: false
     <%- paginator() %>
     <script src="//cdn.jsdelivr.net/npm/lodash@4.17.19/lodash.min.js"></script>
 </body>
-
-</html>

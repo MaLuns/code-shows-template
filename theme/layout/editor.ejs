@@ -5,10 +5,7 @@ layout: false
 <html lang="<%= config.site.language %>">
 
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= page.title %></title>
+    <%- include('head') %>
     <%- css('asset/styles/view') %>
 </head>
 
@@ -61,20 +58,26 @@ layout: false
                     enabled: false
                 }
             };
+            monaco.editor.onDidCreateEditor(codeEditor=>{  
+                setTimeout(() => {
+                    codeEditor.addCommand(monaco.KeyCode.F5, run);
+                    codeEditor.getAction(['editor.action.formatDocument']).run()
+                }, 500);
+            })
             const jsedit = monaco.editor.create(document.getElementById('js-edit'), {
                 ...config,
-                value: `<%- page.code.javascript %>`,
-                language: 'javascript',
+                value: `<%- page.code.script.text %>`,
+                language: `<%- page.code.script.language %>`,
             });
             const htmledit = monaco.editor.create(document.getElementById('html-edit'), {
                 ...config,
-                value: `<%- page.code.html %>`,
-                language: 'html',
+                value: `<%- page.code.html.text %>`,
+                language: `<%- page.code.html.language %>`,
             });
             const cssedit = monaco.editor.create(document.getElementById('css-edit'), {
                 ...config,
-                value: `<%- page.code.css %>`,
-                language: 'css',
+                value: `<%- page.code.style.text %>`,
+                language: `<%- page.code.style.language %>`,
             });
 
             function run() {
@@ -93,11 +96,6 @@ layout: false
             }
 
             run()
-
-            //edit.getAction(['editor.action.formatDocument'])._run()
-            jsedit.addCommand(monaco.KeyCode.F5, run)
-            htmledit.addCommand(monaco.KeyCode.F5, run)
-            cssedit.addCommand(monaco.KeyCode.F5, run)
         });
     </script>
 </body>
