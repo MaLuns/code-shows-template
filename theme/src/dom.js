@@ -4,7 +4,7 @@
  * @param {*} name 
  * @param {*} attrs 
  */
-export const dcreate = (name, attrs, ...childs) => {
+export const createElement = (name, attrs, ...childs) => {
     let el = document.createElement(name)
     addAttr(el, attrs)
     if (childs.length > 0) {
@@ -39,4 +39,14 @@ export const appendChild = (el, ...childers) => {
             el.appendChild(element)
         }
     });
+}
+
+/**
+ * 获取元素
+ * @param {*} el 
+ * @returns 
+ */
+export const getElement = (el) => {
+    let element = typeof el === 'string' && el ? document.querySelector(el) : el;
+    return element instanceof HTMLElement ? element : null
 }

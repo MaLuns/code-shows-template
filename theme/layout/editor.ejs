@@ -3,7 +3,7 @@
     <%- css('asset/styles/editor') %>
 </head>
 
-<body>
+<body class="loading">
     <header class="layout-header">
         <h1>
             <%= page.title %>
@@ -21,9 +21,24 @@
         'asset/script/monaco-editor/lib/css-format-monaco.min.js',
         'asset/script/editor/index.min.js']) %>
     <script>
-        new VEditor(<%-JSON.stringify(page.code)%>, {
-            vs_path: `<%- url_format('asset/script/monaco-editor/vs') %>`,
-        }).init().then(()=>{
+       const editor = new VEditor(
+           <%-JSON.stringify(page.code)%>, 
+            {
+               config: {
+                 vs_path: `<%- url_format('asset/script/monaco-editor/vs') %>`,
+               },
+               container:'#editor-parent',
+               preview: '#result_iframe'
+            },
+        );
+
+        editor.addEventListener('reader',function(){
+            setTimeout(() => {
+                document.body.classList.remove('loading')
+            }, 500);
+        })
+
+        editor.init().then(()=>{
             cssFormatMonaco(monaco);
         })
     </script>

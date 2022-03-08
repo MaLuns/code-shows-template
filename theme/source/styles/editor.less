@@ -14,6 +14,64 @@ html {
     background-color: @theme;
 }
 
+body {
+    &.loading {
+        overflow: hidden;
+
+        &::before {
+            content            : '';
+            position           : absolute;
+            width              : 100vw;
+            height             : 100vh;
+            top                : 0;
+            left               : 0;
+            background-color   : #000;
+            z-index            : 999;
+            background-image   : url(/asset/image/logo.svg);
+            background-repeat  : no-repeat;
+            background-position: 50% calc(50% - 80px);
+        }
+
+        &::after {
+            content                 : 'L O A D I N G';
+            position                : absolute;
+            z-index                 : 1000;
+            top                     : 50%;
+            left                    : 50%;
+            transform               : translate(-50%, -50%);
+            padding                 : 12px 48px;
+            color                   : #fff;
+            background              : linear-gradient(to right, #4d4d4d 0, #fff 10%, #4d4d4d 20%);
+            background-position     : 0;
+            background-clip         : text;
+            -webkit-background-clip : text;
+            -webkit-text-fill-color : transparent;
+            animation               : shine 2s infinite linear;
+            animation-fill-mode     : forwards;
+            -webkit-text-size-adjust: none;
+            font-weight             : 600;
+            font-size               : 30px;
+            text-decoration         : none;
+            white-space             : nowrap;
+
+        }
+
+        @keyframes shine {
+            0% {
+                background-position: 0;
+            }
+
+            60% {
+                background-position: 280px;
+            }
+
+            100% {
+                background-position: 280px;
+            }
+        }
+    }
+}
+
 .layout-header {
     padding         : 0 20px;
     line-height     : @header-height;

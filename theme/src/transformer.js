@@ -33,9 +33,9 @@ export class Transformer {
     run (language, text) {
         if (this.store[language]) {
             let { run, type } = this.store[language]
-            return run(text).then(res => {
+            return run(text).then(result => {
                 return {
-                    res,
+                    result,
                     type,
                 }
             })

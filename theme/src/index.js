@@ -1,18 +1,39 @@
 import { Transformer } from './transformer'
-import { dcreate } from './dom';
+import { createElement as c, getElement } from './dom';
 
-class VEditor {
-    constructor(codes, editConfig = {}) {
+class VEditor extends EventTarget {
+    constructor(
+        codes,
+        {
+            container = '',
+            preview = '',
+            cssCDN = [],
+            jsCDN = [],
+            config = {},
+        }
+    ) {
+        super()
+
         this.transformer = new Transformer();
-        this.codes = codes;
-        this.editConfig = editConfig;
+        this.codes = codes; // 源代码文件
+
+        this.containerEl = getElement(container); // 编辑器容器 dom
+        this.previewEl = getElement(preview); // 预览 dom
+        this.cssCDN = cssCDN; // css cdn
+        this.jsCDN = jsCDN; // js cdn 
+        this.config = config; // 编辑器配置 
+
         this.editors = [];
     }
 
     // 初始化
     init () {
-        let { codes, editConfig } = this;
-        let { vs_path, ...econfig } = editConfig;
+        if (!this.containerEl) {
+            return Promise.reject(new Error('container is required'))
+        }
+
+        let { codes, config, containerEl } = this;
+        let { vs_path, ...econfig } = config;
         let that = this;
 
         return new Promise((resolve, reject) => {
@@ -25,7 +46,7 @@ class VEditor {
                 resolve()
 
                 // 编辑器配置
-                const config = {
+                const def_config = {
                     lineNumbers: false,
                     automaticLayout: true,
                     fontSize: 16,
@@ -43,56 +64,91 @@ class VEditor {
                 // 监听文件初始化
                 monaco.editor.onDidCreateEditor(codeEditor => {
                     setTimeout(() => {
-                        codeEditor.addCommand(monaco.KeyCode.F5, () => {
-                            that.runCode()
-                        });
-                        codeEditor.getAction(['editor.action.formatDocument']).run()
+                        codeEditor.addCommand(monaco.KeyCode.F5, () => that.runCode());
+                        codeEditor.getAction(['editor.action.formatDocument']).run();
+                        that.dispatchEvent(new CustomEvent('reader'))
                     }, 500);
                 })
 
+                // 初始化编辑器
                 let fragment = document.createDocumentFragment();
-
                 Object.keys(codes).forEach(key => {
                     let code = codes[key]
-                    let edit = dcreate('div', { class: 'editor-container' })
-                    let item = dcreate(
+                    let edit = c('div', { class: 'editor-container' })
+                    let item = c(
                         'div',
                         { class: 'editor-item' },
-                        dcreate('div', { class: 'editor-title' }, dcreate('div', {}, key)),
+                        c('div', { class: 'editor-title' }, c('div', {}, key)),
                         edit
                     )
 
                     fragment.appendChild(item)
 
                     const editor = monaco.editor.create(edit, {
-                        ...config,
+                        ...def_config,
                         value: code.text,
                         language: code.language,
                     })
-
                     that.editors.push(editor)
                 });
-
-                document.getElementById('editor-parent').appendChild(fragment)
+                containerEl.appendChild(fragment)
             });
         })
     }
 
     // 运行代码
     runCode () {
-        let { transformer } = this
+        let { transformer, createHtml, previewEl } = this
         let models = monaco.editor.getModels()
-        models.forEach(model => {
+        const tasks = models.map(model => {
             const language = model._languageId
             const value = model.getValue()
-            console.log(model);
-            transformer.run(language, value).then(res => {
-                console.log(res);
-            })
+            return transformer.run(language, value).catch(() => null)
         })
+        Promise.all(tasks).then(results => {
+            let code = {}
+            results.forEach(element => {
+                if (element.result) {
+                    code[element.type] = element.result;
+                }
+            });
+            let htmlstr = createHtml(code);
+            previewEl.srcdoc = htmlstr;
+        })
+    }
 
-        const iframe_body = document.getElementById('result_iframe')
-        iframe_body.srcdoc = ''
+    // 生成
+    createHtml ({ html, javascript, css, csscdn = [], jscdn = [] }) {
+        let _cssCDN = csscdn.map((item) => `<link href="${item.url}" rel="stylesheet">`).join("\n");
+        let _jsCDN = jscdn.map((item) => `<script src="${item.url}"><\/script>`).join("\n");
+        let head = `
+            <title>预览<\/title>
+            ${_cssCDN}
+            <style type="text/css">
+                ${css}
+            <\/style>`;
+        let body = `
+            ${html}
+            ${_jsCDN}
+            <script>
+                try {
+                    ${javascript}
+                } catch (err) {
+                    console.error('js代码运行出错')
+                    console.error(err)
+                }
+            <\/script>`;
+
+        return `<!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="UTF-8" />
+                ${head}
+            </head>
+            <body>
+                ${body}
+            </body>
+            </html>`
     }
 }
 
