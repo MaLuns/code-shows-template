@@ -1,12 +1,6 @@
----
-layout: false
----
-<!DOCTYPE html>
-<html lang="<%= config.site.language %>">
-
 <head>
     <%- include('head') %>
-    <%- css('asset/styles/view') %>
+    <%- css('asset/styles/editor') %>
 </head>
 
 <body>
@@ -16,88 +10,21 @@ layout: false
         </h1>
     </header>
     <main class="layout-main">
-        <div class="editor-parent">
-            <div class="editor-item">
-                <div class="editor-title">
-                    <div>html</div>
-                </div>
-                <div id="html-edit" class="editor-container"> </div>
-            </div>
-            <div class="editor-item">
-                <div class="editor-title">
-                    <div>css</div>
-                </div>
-                <div id="css-edit" class="editor-container"> </div>
-            </div>
-            <div class="editor-item">
-                <div class="editor-title">
-                    <div>js</div>
-                </div>
-                <div id="js-edit" class="editor-container"></div>
-            </div>
-        </div>
+        <div class="editor-parent" id="editor-parent"></div>
         <div class="resizer"></div>
         <div class="output-container">
-            <iframe id="result_iframe" src="" frameborder="0" class="result-iframe"></iframe>
+            <iframe id="result_iframe" srcdoc="" frameborder="0" class="result-iframe"></iframe>
         </div>
     </main>
-    <footer class="layout-footer">
-        <a>code-show</a>
-    </footer>
-    <%- js(['asset/script/monaco-editor/vs/loader.js','asset/script/monaco-editor/lib/css-format-monaco.min.js']) %>
+    <%- js([
+        'asset/script/monaco-editor/vs/loader.js',
+        'asset/script/monaco-editor/lib/css-format-monaco.min.js',
+        'asset/script/editor/index.min.js']) %>
     <script>
-        require.config({ paths: { 'vs': `<%- url_format('asset/script/monaco-editor/vs') %>` } });
-        require(['vs/editor/editor.main'], function () {
+        new VEditor(<%-JSON.stringify(page.code)%>, {
+            vs_path: `<%- url_format('asset/script/monaco-editor/vs') %>`,
+        }).init().then(()=>{
             cssFormatMonaco(monaco);
-            const config = {
-                lineNumbers: false,
-                automaticLayout: true,
-                fontSize: 16,
-                theme: 'vs-dark',
-                minimap: {
-                    enabled: false
-                }
-            };
-            monaco.editor.onDidCreateEditor(codeEditor=>{  
-                setTimeout(() => {
-                    codeEditor.addCommand(monaco.KeyCode.F5, run);
-                    codeEditor.getAction(['editor.action.formatDocument']).run()
-                }, 500);
-            })
-            const jsedit = monaco.editor.create(document.getElementById('js-edit'), {
-                ...config,
-                value: `<%- page.code.script.text %>`,
-                language: `<%- page.code.script.language %>`,
-            });
-            const htmledit = monaco.editor.create(document.getElementById('html-edit'), {
-                ...config,
-                value: `<%- page.code.html.text %>`,
-                language: `<%- page.code.html.language %>`,
-            });
-            const cssedit = monaco.editor.create(document.getElementById('css-edit'), {
-                ...config,
-                value: `<%- page.code.style.text %>`,
-                language: `<%- page.code.style.language %>`,
-            });
-
-            function run() {
-                const iframe_body = document.getElementById('result_iframe').contentWindow.document.body
-                iframe_body.innerHTML = `<style>${cssedit.getValue()}</style>${htmledit.getValue()}`
-                const script = document.createElement("script");
-                script.type = "text/javascript";
-                script.id = "run_js"
-                try {
-                    script.appendChild(document.createTextNode(jsedit.getValue()));
-                }
-                catch (ex) {
-                    script.text = jsedit.getValue();
-                }
-                iframe_body.appendChild(script)
-            }
-
-            run()
-        });
+        })
     </script>
 </body>
-
-</html>
