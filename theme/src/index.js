@@ -1,38 +1,39 @@
-import { Transformer } from './transformer'
-import { createElement as c, getElement } from './dom';
+import Iframe from './Iframe';
+import transform from './transform'
+import { createHtml, createElement as c, getElement } from './utils'
 
 class VEditor extends EventTarget {
-    constructor(
-        codes,
-        {
-            container = '',
-            preview = '',
-            cssCDN = [],
-            jsCDN = [],
-            config = {},
-        }
-    ) {
+    constructor(codes, options) {
         super()
 
-        this.transformer = new Transformer();
+        this.options = {
+            container: '',
+            preview: '',
+            cssCDN: [],
+            jsCDN: [],
+            config: {},
+            sandboxAttributes: ['allow-modals', 'allow-forms', 'allow-pointer-lock', 'allow-popups', 'allow-same-origin', 'allow-scripts'],
+            ...options
+        }
+
         this.codes = codes; // 源代码文件
+        this.config = this.options.config; // 编辑器配置 
 
-        this.containerEl = getElement(container); // 编辑器容器 dom
-        this.previewEl = getElement(preview); // 预览 dom
-        this.cssCDN = cssCDN; // css cdn
-        this.jsCDN = jsCDN; // js cdn 
-        this.config = config; // 编辑器配置 
+        this.containerElement = getElement(this.options.container);
+        this.previewElement = getElement(this.options.preview) ? new Iframe({
+            el: getElement(this.options.preview),
+            sandboxAttributes: this.options.sandboxAttributes
+        }) : null;
 
-        this.editors = [];
     }
 
     // 初始化
     init () {
-        if (!this.containerEl) {
+        if (!this.containerElement) {
             return Promise.reject(new Error('container is required'))
         }
 
-        let { codes, config, containerEl } = this;
+        let { codes, config, containerElement } = this;
         let { vs_path, ...econfig } = config;
         let that = this;
 
@@ -64,7 +65,7 @@ class VEditor extends EventTarget {
                 // 监听文件初始化
                 monaco.editor.onDidCreateEditor(codeEditor => {
                     setTimeout(() => {
-                        codeEditor.addCommand(monaco.KeyCode.F5, () => that.runCode());
+                        codeEditor.addCommand(monaco.KeyCode.F5, () => that.runCode(true));
                         codeEditor.getAction(['editor.action.formatDocument']).run();
                         that.dispatchEvent(new CustomEvent('reader'))
                     }, 500);
@@ -74,7 +75,7 @@ class VEditor extends EventTarget {
                 let fragment = document.createDocumentFragment();
                 Object.keys(codes).forEach(key => {
                     let code = codes[key]
-                    let edit = c('div', { class: 'editor-container' })
+                    let edit = c('div', { class: 'code-editor' })
                     let item = c(
                         'div',
                         { class: 'editor-item' },
@@ -84,73 +85,50 @@ class VEditor extends EventTarget {
 
                     fragment.appendChild(item)
 
-                    const editor = monaco.editor.create(edit, {
+                    monaco.editor.create(edit, {
                         ...def_config,
                         value: code.text,
                         language: code.language,
                     })
-                    that.editors.push(editor)
+
+                    transform.load(code.language)
                 });
-                containerEl.appendChild(fragment)
+                containerElement.appendChild(fragment)
             });
         })
     }
 
     // 运行代码
-    runCode () {
-        let { transformer, createHtml, previewEl } = this
-        let models = monaco.editor.getModels()
+    async runCode (event = false) {
+        const { previewElement, options } = this
+        const models = monaco.editor.getModels()
         const tasks = models.map(model => {
-            const language = model._languageId
-            const value = model.getValue()
-            return transformer.run(language, value).catch(() => null)
+            return transform.run(model._languageId, model.getValue()).catch(() => null)
         })
-        Promise.all(tasks).then(results => {
-            let code = {}
-            results.forEach(element => {
-                if (element.result) {
-                    code[element.type] = element.result;
-                }
-            });
-            let htmlstr = createHtml(code);
-            previewEl.srcdoc = htmlstr;
-        })
-    }
 
-    // 生成
-    createHtml ({ html, javascript, css, csscdn = [], jscdn = [] }) {
-        let _cssCDN = csscdn.map((item) => `<link href="${item.url}" rel="stylesheet">`).join("\n");
-        let _jsCDN = jscdn.map((item) => `<script src="${item.url}"><\/script>`).join("\n");
-        let head = `
-            <title>预览<\/title>
-            ${_cssCDN}
-            <style type="text/css">
-                ${css}
-            <\/style>`;
-        let body = `
-            ${html}
-            ${_jsCDN}
-            <script>
-                try {
-                    ${javascript}
-                } catch (err) {
-                    console.error('js代码运行出错')
-                    console.error(err)
-                }
-            <\/script>`;
+        const results = await Promise.all(tasks);
+        const code = {
+            jscdn: options.jsCDN,
+            csscdn: options.cssCDN
+        };
+        results.forEach(element => {
+            if (element.result) {
+                code[element.type] = element.result;
+            }
+        });
 
-        return `<!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8" />
-                ${head}
-            </head>
-            <body>
-                ${body}
-            </body>
-            </html>`
+        if (previewElement) {
+            previewElement.setHTML(createHtml(code));
+        } else {
+            if (event) {
+                this.dispatchEvent(new CustomEvent('runcode', {
+                    detail: createHtml(code)
+                }))
+            }
+        }
     }
 }
 
+VEditor.prototype.transform = transform
 
 export default VEditor

@@ -5,30 +5,38 @@
 
 <body class="loading">
     <header class="layout-header">
-        <h1>
-            <%= page.title %>
-        </h1>
+        <div class="layout-header-left">
+            <h1>Code-Shows</h1>
+        </div>
+        <div class="layout-header-center">
+            <h1><%= page.title %></h1>
+        </div>
+        <div class="layout-header-right">
+            <button id="run-code">Run</button>
+            <button>Save</button>
+        </div>
     </header>
     <main class="layout-main">
-        <div class="editor-parent" id="editor-parent"></div>
+        <div class="editor-container" id="editor-container"></div>
         <div class="resizer"></div>
         <div class="output-container">
-            <iframe id="result_iframe" srcdoc="" frameborder="0" class="result-iframe"></iframe>
+            <div id="output-iframe"></div>
         </div>
     </main>
     <%- js([
-        'asset/script/monaco-editor/vs/loader.js',
-        'asset/script/monaco-editor/lib/css-format-monaco.min.js',
-        'asset/script/editor/index.min.js']) %>
+    'asset/script/monaco-editor/vs/loader.js',
+    'asset/script/monaco-editor/lib/css-format-monaco.min.js',
+    'asset/script/editor/index.min.js']) %>
+    <%- variable('_CODE_INFO',page.code) %>
     <script>
-       const editor = new VEditor(
-           <%-JSON.stringify(page.code)%>, 
+        const editor = new VEditor(
+            _CODE_INFO,
             {
                config: {
                  vs_path: `<%- url_format('asset/script/monaco-editor/vs') %>`,
                },
-               container:'#editor-parent',
-               preview: '#result_iframe'
+               container:'#editor-container',
+               preview: '#output-iframe'
             },
         );
 
@@ -40,6 +48,10 @@
 
         editor.init().then(()=>{
             cssFormatMonaco(monaco);
+        })
+
+        document.getElementById('run-code').addEventListener('click',()=>{
+            editor.runCode()
         })
     </script>
 </body>

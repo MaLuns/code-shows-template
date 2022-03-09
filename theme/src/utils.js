@@ -50,3 +50,34 @@ export const getElement = (el) => {
     let element = typeof el === 'string' && el ? document.querySelector(el) : el;
     return element instanceof HTMLElement ? element : null
 }
+
+/**
+ * 生成 HMLT 片段
+ * @param {*}  
+ * @returns 
+ */
+export const createHtml = ({ html, javascript, css, csscdn = [], jscdn = [] }) => {
+    javascript = javascript ? `
+        <script>
+            try { 
+                ${javascript}
+            } catch (err) { 
+                console.error('js代码运行出错') 
+                console.error(err)
+            } 
+        <\/script>` : ''
+
+    let _cssCDN = csscdn.map((item) => `<link href="${item.url}" rel="stylesheet">`).join("\n");
+    let _jsCDN = jscdn.map((item) => `<script src="${item.url}"><\/script>`).join("\n");
+
+    let head = `
+    ${_cssCDN}
+    <style type="text/css">${css}<\/style>`;
+
+    let body = `
+    ${html}
+    ${_jsCDN}
+    ${javascript}`;
+
+    return { head, body }
+}
