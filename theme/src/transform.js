@@ -18,7 +18,6 @@ class Transform {
     }
 
     async load (language) {
-        console.log(language);
         let tran = this.get(language)
         if (!tran) {
             switch (language) {

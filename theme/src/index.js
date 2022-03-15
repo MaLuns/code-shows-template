@@ -1,6 +1,6 @@
 import Iframe from './Iframe';
 import transform from './transform'
-import { createHtml, createElement as c, getElement } from './utils'
+import { createHtml, createElement as c, getElement, debounce } from './utils'
 
 class VEditor extends EventTarget {
     constructor(codes, options) {
@@ -63,17 +63,19 @@ class VEditor extends EventTarget {
                 };
 
                 // 监听文件初始化
+                const readerEvent = debounce(() => that.dispatchEvent(new CustomEvent('reader')), 300)
                 monaco.editor.onDidCreateEditor(codeEditor => {
                     setTimeout(() => {
                         codeEditor.addCommand(monaco.KeyCode.F5, () => that.runCode(true));
                         codeEditor.getAction(['editor.action.formatDocument']).run();
-                        that.dispatchEvent(new CustomEvent('reader'))
+                        readerEvent()
                     }, 500);
                 })
 
                 // 初始化编辑器
                 let fragment = document.createDocumentFragment();
-                Object.keys(codes).forEach(key => {
+                let keys = Object.keys(codes);
+                keys.forEach((key, index) => {
                     let code = codes[key]
                     let edit = c('div', { class: 'code-editor' })
                     let item = c(
@@ -84,6 +86,9 @@ class VEditor extends EventTarget {
                     )
 
                     fragment.appendChild(item)
+                    if (index < keys.length - 1) {
+                        fragment.appendChild(c('div', { class: 'resizer-x' }))
+                    }
 
                     monaco.editor.create(edit, {
                         ...def_config,

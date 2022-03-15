@@ -14,7 +14,7 @@ class Iframe {
             html = obj
         } else {
             const { head = '', body = '' } = obj
-            html = `<!DOCTYPE html><html><head>${head}</head><body>${body}</body></html>`
+            html = `<!DOCTYPE html><html><head>${head}</head><body style="margin: 0;">${body}</body></html>`
         }
 
         const iframe = this.createIframe()
@@ -30,6 +30,7 @@ class Iframe {
         iframe.setAttribute('sandbox', this.sandboxAttributes.join(' '))
         iframe.setAttribute('scrolling', 'yes')
         iframe.setAttribute('class', 'result-iframe')
+        iframe.setAttribute('id', 'output-iframe')
         iframe.style.width = '100%'
         iframe.style.height = '100%'
         iframe.style.border = "0"

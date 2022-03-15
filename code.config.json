@@ -1,10 +1,9 @@
 {
     "site": {
-        "title": "code-shows",
-        "subtitle": "",
+        "title": "",
         "description": "",
         "keywords": " ",
-        "author": "author",
+        "author": "",
         "language": "zh-Hans",
         "url": "",
         "root": "/"
@@ -16,11 +15,17 @@
         "theme_dir": "theme",
         "dist_dir": "dist"
     },
-    "new_code_file": [
-        ".vue",
-        ".html"
-    ],
-    "default_layout": "view",
+    "code_file": {
+        "include": [
+            "**/**.vue",
+            "**/**.html"
+        ],
+        "exclude": ["404.html"],
+        "ignore": []
+    },
+    "theme": {
+        "layout": "view"
+    },
     "pagination": {
         "dir": "page",
         "per_page": 6,

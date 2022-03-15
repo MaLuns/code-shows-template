@@ -1,6 +1,9 @@
 <head>
     <%- include('head') %>
-    <%- js(page.cdn) %>
+    <% if(page.cdn){ %> 
+        <%- js(page.cdn.css) %>
+        <%- js(page.cdn.js) %>
+    <% } %> 
     <%- tag('style', page.code.style.text) %>
 </head>
 

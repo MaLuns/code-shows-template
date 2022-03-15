@@ -67,8 +67,8 @@ export const createHtml = ({ html, javascript, css, csscdn = [], jscdn = [] }) =
             } 
         <\/script>` : ''
 
-    let _cssCDN = csscdn.map((item) => `<link href="${item.url}" rel="stylesheet">`).join("\n");
-    let _jsCDN = jscdn.map((item) => `<script src="${item.url}"><\/script>`).join("\n");
+    let _cssCDN = csscdn.map((item) => `<link href="${item}" rel="stylesheet">`).join("\n");
+    let _jsCDN = jscdn.map((item) => `<script src="${item}"><\/script>`).join("\n");
 
     let head = `
     ${_cssCDN}
@@ -80,4 +80,24 @@ export const createHtml = ({ html, javascript, css, csscdn = [], jscdn = [] }) =
     ${javascript}`;
 
     return { head, body }
+}
+
+/**
+ * 防抖
+ * @param {*} func 
+ * @param {*} wait 
+ * @param {*} immediate 
+ * @returns 
+ */
+export const debounce = (func, wait, immediate) => {
+    var timeout;
+    return function () {
+        var context = this, args = arguments;
+        clearTimeout(timeout);
+        timeout = setTimeout(function () {
+            timeout = null;
+            if (!immediate) func.apply(context, args);
+        }, wait);
+        if (immediate && !timeout) func.apply(context, args);
+    };
 }
