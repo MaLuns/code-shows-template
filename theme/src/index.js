@@ -1,6 +1,7 @@
 import Iframe from './Iframe';
 import transform from './transform'
 import { createHtml, createElement as c, getElement, debounce } from './utils'
+import { saveAs } from 'file-saver';
 
 class VEditor extends EventTarget {
     constructor(codes, options) {
@@ -78,11 +79,7 @@ class VEditor extends EventTarget {
                 keys.forEach((key, index) => {
                     let code = codes[key]
                     let edit = c('div', { class: 'code-editor' })
-                    let item = c(
-                        'div',
-                        { class: 'editor-item' },
-                        c('div', { class: 'editor-title' }, c('div', {}, key)),
-                        edit
+                    let item = c('div', { class: 'editor-item' }, c('div', { class: 'editor-title' }, code.language), edit
                     )
 
                     fragment.appendChild(item)
@@ -92,7 +89,7 @@ class VEditor extends EventTarget {
 
                     monaco.editor.create(edit, {
                         ...def_config,
-                        value: code.text,
+                        value: code.source,
                         language: code.language,
                     })
 
@@ -105,7 +102,30 @@ class VEditor extends EventTarget {
 
     // 运行代码
     async runCode (event = false) {
-        const { previewElement, options } = this
+        const { previewElement } = this
+        const code = await this._getCode()
+
+        if (previewElement) {
+            previewElement.setHTML(createHtml(code));
+        } else {
+            if (event) {
+                this.dispatchEvent(new CustomEvent('runcode', {
+                    detail: createHtml(code)
+                }))
+            }
+        }
+    }
+
+    // 保存代码
+    async saveAs (name) {
+        const obj = createHtml(await this._getCode())
+        const { head = '', body = '' } = obj
+        var blob = new Blob([`<!DOCTYPE html><html><head>${head}</head><body>${body}</body></html>`], { type: "text/plain;charset=utf-8" });
+        saveAs(blob, name || "demo.html");
+    }
+
+    async _getCode () {
+        const { options } = this
         const models = monaco.editor.getModels()
         const tasks = models.map(model => {
             return transform.run(model._languageId, model.getValue()).catch(() => null)
@@ -122,15 +142,7 @@ class VEditor extends EventTarget {
             }
         });
 
-        if (previewElement) {
-            previewElement.setHTML(createHtml(code));
-        } else {
-            if (event) {
-                this.dispatchEvent(new CustomEvent('runcode', {
-                    detail: createHtml(code)
-                }))
-            }
-        }
+        return code
     }
 }
 

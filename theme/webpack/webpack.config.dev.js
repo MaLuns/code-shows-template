@@ -8,6 +8,6 @@ module.exports = merge(baseConf, {
     watchOptions: {
         aggregateTimeout: 500,
         poll: 1000,
-        ignored: ['**/node_modules', '**/source', "**/layout"] //忽略时时监听
+        ignored: ['**/node_modules', '**/source', "**/layout"]
     }
 })
