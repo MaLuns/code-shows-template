@@ -50,5 +50,9 @@
     <%- variable('_CODE_INFO',page.code) %>
     <%- variable('_CODE_CDN',page.cdn) %>
     <%- variable('_VS_PATH',url_format('asset/script/monaco-editor/vs')) %>
-    <%- js([ 'asset/script/monaco-editor/vs/loader.js' , 'asset/script/monaco-editor/lib/css-format-monaco.min.js' , 'asset/script/editor/index.min.js' , 'asset/script/app.js' ]) %>
+    <!-- 'asset/script/monaco-editor/vs/loader.js' ,
+     'asset/script/monaco-editor/lib/css-format-monaco.min.js' , -->
+    <%- js([ 
+      'asset/script/editor/index.min.js' ,
+       'asset/script/app.js' ]) %>
 </body>

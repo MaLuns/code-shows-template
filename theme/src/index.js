@@ -1,7 +1,12 @@
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 import Iframe from './Iframe';
 import transform from './transform'
 import { createHtml, createElement as c, getElement, debounce } from './utils'
-import { saveAs } from 'file-saver';
+import { liftOff, initMonacoEditor, loadTheme } from './textmate'
+import { cssFormatter } from './formatters';
+
+// 初始化 css 格式化
+const cssFormt = cssFormatter()
 
 class VEditor extends EventTarget {
     constructor(codes, options) {
@@ -29,75 +34,82 @@ class VEditor extends EventTarget {
     }
 
     // 初始化
-    init () {
+    async init () {
         if (!this.containerElement) {
             return Promise.reject(new Error('container is required'))
         }
-
-        let { codes, config, containerElement } = this;
-        let { vs_path, ...econfig } = config;
+        await initMonacoEditor()
         let that = this;
+        let { codes, config, containerElement } = this;
+        config.theme = config.theme || 'MonokaiPro'
+
+        await loadTheme(config.theme)
 
         return new Promise((resolve, reject) => {
-            __non_webpack_require__.config({
-                paths: { 'vs': vs_path },
-                'vs/nls': { availableLanguages: { '*': 'zh-cn', }, },
-            });
+            resolve()
+            // 编辑器配置
+            const def_config = {
+                lineNumbers: false,
+                automaticLayout: true,
+                fontSize: 16,
+                fontFamily: 'MonoLisa, monospace',
+                fixedOverflowWidgets: true,
+                minimap: {
+                    enabled: false
+                },
+                hover: {
+                    enabled: false
+                },
+                ...config
+            };
 
-            __non_webpack_require__(['vs/editor/editor.main'], function () {
-                resolve()
+            //#region 监听编辑器创建成功
+            const readerEvent = debounce(() => that.dispatchEvent(new CustomEvent('reader')), 300)
+            const _runCode = debounce(() => that.runCode(), 500)
+            monaco.editor.onDidCreateEditor(codeEditor => {
+                setTimeout(() => {
+                    codeEditor.getAction(['editor.action.formatDocument']).run(); // 格式化
+                    codeEditor.addCommand(monaco.KeyCode.F5, () => _runCode()); // 监听F5
+                    // codeEditor.onDidBlurEditorText((e) => _runCode()) // 监听失焦事件
+                    // codeEditor.onDidChangeModelContent((e) => _runCode())// 监听编辑事件
+                    readerEvent()
+                }, 500);
+            })
+            //#endregion
 
-                // 编辑器配置
-                const def_config = {
-                    lineNumbers: false,
-                    automaticLayout: true,
-                    fontSize: 16,
-                    theme: 'vs-dark',
-                    minimap: {
-                        enabled: false
-                    },
-                    folding: false,
-                    fontFamily: 'MonoLisa, monospace',
-                    contextmenu: false, // 
-                    fixedOverflowWidgets: true, // 让语法提示层能溢出容器
-                    ...econfig
-                };
+            //#region 初始化编辑器
+            let fragment = document.createDocumentFragment();
+            let keys = Object.keys(codes);
+            keys.forEach((key, index) => {
+                let code = codes[key]
+                let edit = c('div', { class: 'code-editor' })
+                let item = c('div', { class: 'editor-item', 'data-resizer': index },
+                    c('div', { class: 'editor-title' }, code.language),
+                    edit
+                )
 
-                // 监听文件初始化
-                const readerEvent = debounce(() => that.dispatchEvent(new CustomEvent('reader')), 300)
-                monaco.editor.onDidCreateEditor(codeEditor => {
-                    setTimeout(() => {
-                        codeEditor.addCommand(monaco.KeyCode.F5, () => that.runCode(true));
-                        codeEditor.getAction(['editor.action.formatDocument']).run();
-                        readerEvent()
-                    }, 500);
+                fragment.appendChild(item)
+                if (index < keys.length - 1) {
+                    fragment.appendChild(c('div', { class: 'resizer-x', "data-editor": index + 1 }))
+                }
+
+                var editro = monaco.editor.create(edit, {
+                    ...def_config,
+                    value: code.source,
+                    language: code.language,
                 })
 
-                // 初始化编辑器
-                let fragment = document.createDocumentFragment();
-                let keys = Object.keys(codes);
-                keys.forEach((key, index) => {
-                    let code = codes[key]
-                    let edit = c('div', { class: 'code-editor' })
-                    let item = c('div', { class: 'editor-item' }, c('div', { class: 'editor-title' }, code.language), edit
-                    )
-
-                    fragment.appendChild(item)
-                    if (index < keys.length - 1) {
-                        fragment.appendChild(c('div', { class: 'resizer-x' }))
-                    }
-
-                    monaco.editor.create(edit, {
-                        ...def_config,
-                        value: code.source,
-                        language: code.language,
-                    })
-
-                    transform.load(code.language)
-                });
-                containerElement.appendChild(fragment)
+                liftOff(code.language, editro) // 替换 textmate
+                transform.load(code.language) // 加载预处理语言 转换器
             });
+            containerElement.appendChild(fragment)
+            //#endregion
         })
+    }
+
+    // 设置主题
+    async setTheme (name) {
+        return loadTheme(name)
     }
 
     // 运行代码
@@ -118,10 +130,11 @@ class VEditor extends EventTarget {
 
     // 保存代码
     async saveAs (name) {
+        const file = await import(/* webpackChunkName: "lib/file-saver" */ 'file-saver')
         const obj = createHtml(await this._getCode())
         const { head = '', body = '' } = obj
         var blob = new Blob([`<!DOCTYPE html><html><head>${head}</head><body>${body}</body></html>`], { type: "text/plain;charset=utf-8" });
-        saveAs(blob, name || "demo.html");
+        file.saveAs(blob, name || "demo.html");
     }
 
     async _getCode () {
@@ -144,6 +157,7 @@ class VEditor extends EventTarget {
 
         return code
     }
+
 }
 
 VEditor.prototype.transform = transform

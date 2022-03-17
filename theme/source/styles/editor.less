@@ -193,6 +193,10 @@ body {
     .resizer-x {
         cursor          : col-resize;
         background-color: @main-bg;
+
+        &.hide {
+            display: none;
+        }
     }
 
     .resizer-y {
@@ -237,8 +241,9 @@ body {
             padding: 0 10px;
 
             .editor-item.folding {
-                flex : none;
-                width: 36px;
+                flex       : none;
+                width      : 36px;
+                border-left: 1px solid @border-color;
 
                 .editor-title {
                     padding         : 16px 0;
@@ -269,7 +274,7 @@ body {
         }
 
         .resizer-x {
-            display: none;
+            display: none !important;
         }
 
         .editor-container {

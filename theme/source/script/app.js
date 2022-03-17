@@ -30,7 +30,7 @@
     // 初始化编辑器
     editor.init().then(() => {
         // 注册插件
-        cssFormatMonaco(monaco);
+        // cssFormatMonaco(monaco);
     })
 
     // 编辑器加载完成
@@ -40,17 +40,32 @@
 
     })
 
-    // 
+    // 折叠
     editorContainer.addEventListener('click', function (e) {
         if (e.target.classList.contains('editor-title')) {
-            let p = e.target.parentElement
-            if (p.classList.contains('folding')) {
-                p.classList.remove('folding')
-            } else {
-                p.classList.add('folding')
+            let p = e.target.parentNode;
+            let key = p.classList.contains('folding') ? 'remove' : 'add'
+            p.classList[key]('folding')
+            if (p.dataset.resizer) {
+                let resizer = this.querySelector(`.resizer-x[data-editor='${p.dataset.resizer}']`)
+                if (resizer) {
+                    resizer.classList[key]('hide')
+                }
             }
         }
     })
+    /* editorContainer.addEventListener('dblclick', function (e) {
+        if (e.target.classList.contains('editor-title')) {
+            let p = e.target.parentNode
+            this.querySelectorAll('.editor-item').forEach(item => {
+                if (item !== p) {
+                    item.classList.add('folding');
+                } else {
+                    item.classList.remove('folding')
+                }
+            })
+        }
+    }) */
 
     // 运行代码
     runCodeButton.addEventListener('click', function () {
