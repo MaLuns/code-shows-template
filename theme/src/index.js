@@ -5,6 +5,8 @@ import { createHtml, createElement as c, getElement, debounce } from './utils'
 import { liftOff, initMonacoEditor, loadTheme } from './textmate'
 import { cssFormatter } from './formatters';
 
+const basepath = (window._ROOT_PATH || '') + '/asset/script'
+
 // 初始化 css 格式化
 const cssFormt = cssFormatter()
 
@@ -64,14 +66,14 @@ class VEditor extends EventTarget {
             };
 
             //#region 监听编辑器创建成功
-            const readerEvent = debounce(() => that.dispatchEvent(new CustomEvent('reader')), 300)
-            const _runCode = debounce(() => that.runCode(), 500)
+            const readerEvent = debounce(() => that.dispatchEvent(new CustomEvent('reader')), 500)
+            const _runCode = debounce(() => that.runCode(), 2000)
             monaco.editor.onDidCreateEditor(codeEditor => {
                 setTimeout(() => {
                     codeEditor.getAction(['editor.action.formatDocument']).run(); // 格式化
                     codeEditor.addCommand(monaco.KeyCode.F5, () => _runCode()); // 监听F5
                     // codeEditor.onDidBlurEditorText((e) => _runCode()) // 监听失焦事件
-                    // codeEditor.onDidChangeModelContent((e) => _runCode())// 监听编辑事件
+                    codeEditor.onDidChangeModelContent((e) => _runCode())// 监听编辑事件
                     readerEvent()
                 }, 500);
             })
@@ -146,7 +148,7 @@ class VEditor extends EventTarget {
 
         const results = await Promise.all(tasks);
         const code = {
-            jscdn: options.jsCDN,
+            jscdn: [basepath + '/console.js'].concat(options.jsCDN),
             csscdn: options.cssCDN
         };
         results.forEach(element => {

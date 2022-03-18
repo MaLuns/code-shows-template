@@ -62,8 +62,13 @@ export const createHtml = ({ html, javascript, css, csscdn = [], jscdn = [] }) =
             try { 
                 ${javascript}
             } catch (err) { 
-                console.error('js代码运行出错') 
-                console.error(err)
+                window.parent.postMessage(
+                    {
+                        type: 'iframe-error',
+                        message: err instanceof Error ? (err.frame ? err.message + '\\n' + err.frame : err.stack) : err
+                    },
+                    '*'
+                )
             } 
         <\/script>` : ''
 
@@ -99,5 +104,22 @@ export const debounce = (func, wait, immediate) => {
             if (!immediate) func.apply(context, args);
         }, wait);
         if (immediate && !timeout) func.apply(context, args);
+    };
+}
+
+/**
+ * 节流
+ * @param {*} func 
+ * @param {*} timeFrame 
+ * @returns 
+ */
+export const throttle = (func, timeFrame) => {
+    var lastTime = 0;
+    return function (...args) {
+        var now = new Date();
+        if (now - lastTime >= timeFrame) {
+            func(...args);
+            lastTime = now;
+        }
     };
 }

@@ -2,16 +2,30 @@
     const dom = document;
     const layouts = ['top', 'left', 'bottom', 'right']
     let currentLayout = 'top';
-    const editorContainer = dom.getElementById('editor-container')
+    // 按钮
     const layoutButton = dom.getElementById('layout-button')
     const runCodeButton = dom.getElementById('run-code')
     const saveCodeButton = dom.getElementById('save-code')
-    const resizerBar = dom.getElementById('resizer')
+    const logButton = dom.getElementById('log-button')
+    // 布局区域
+    const layoutMain = dom.getElementById('layout-main')
+    const resizerBar = dom.getElementById('resizer-bar')
+    const editorContainer = dom.getElementById('editor-container')
+    const outputContainer = dom.getElementById('output-container')
+    const outputLogTitle = dom.getElementById('output-log-title')
+    const outputLogBody = dom.getElementById('output-log-body')
 
-    const next = function (item, arr) {
+    const next = (item, arr) => {
         if (arr.length === 0) return
         let index = arr.findIndex(e => e === item);
         return index === -1 || index === arr.length - 1 ? arr[0] : arr[index + 1]
+    }
+
+    const toggle = (el, className) => {
+        if (el) {
+            let key = el.classList.contains(className) ? 'remove' : 'add'
+            el.classList[key](className)
+        }
     }
 
     const editor = new VEditor(
@@ -44,46 +58,30 @@
     editorContainer.addEventListener('click', function (e) {
         if (e.target.classList.contains('editor-title')) {
             let p = e.target.parentNode;
-            let key = p.classList.contains('folding') ? 'remove' : 'add'
-            p.classList[key]('folding')
+            toggle(p, 'folding');
             if (p.dataset.resizer) {
                 let resizer = this.querySelector(`.resizer-x[data-editor='${p.dataset.resizer}']`)
-                if (resizer) {
-                    resizer.classList[key]('hide')
-                }
+                toggle(resizer, 'hide');
             }
         }
     })
-    /* editorContainer.addEventListener('dblclick', function (e) {
-        if (e.target.classList.contains('editor-title')) {
-            let p = e.target.parentNode
-            this.querySelectorAll('.editor-item').forEach(item => {
-                if (item !== p) {
-                    item.classList.add('folding');
-                } else {
-                    item.classList.remove('folding')
-                }
-            })
-        }
-    }) */
 
     // 运行代码
     runCodeButton.addEventListener('click', function () {
         editor.runCode()
     })
 
-    // 修改布局
+    // 切换布局
     layoutButton.addEventListener('click', function () {
-        let main = dom.getElementById('layout-main')
-        main.classList.remove(`layout-${currentLayout}`)
+        layoutMain.classList.remove(`layout-${currentLayout}`)
 
         this.dataset.type = currentLayout = next(currentLayout, layouts)
 
-        main.classList.add(`layout-${currentLayout}`)
+        layoutMain.classList.add(`layout-${currentLayout}`)
         editorContainer.style = ''
     })
 
-    // 拖动区域
+    // 拖动 代码区域-预览区域 大小
     resizerBar.addEventListener('mousedown', function (e) {
         e = e || window.event;
         e.preventDefault ? e.preventDefault() : (e.returnValue = false);
@@ -98,7 +96,8 @@
         let h = this.offsetHeight
         let w = this.offsetWidth
 
-        let oft = editorContainer.offsetTop
+        // 距离顶部距离
+        let oft = layoutMain.offsetTop
 
         dom.onmousemove = e => {
             switch (currentLayout) {
@@ -106,7 +105,7 @@
                     editorContainer.style.height = Math.min(Math.max(e.clientY - disY - oft, 0), winY - oft) + 'px'
                     break;
                 case 'bottom':
-                    editorContainer.style.height = Math.min(Math.max((winY - e.clientY + disY - h), 0), winY - 60) + 'px'
+                    editorContainer.style.height = Math.min(Math.max((winY - e.clientY + disY - h), 0), winY - oft) + 'px'
                     break;
                 case 'left':
                     editorContainer.style.width = Math.max((e.clientX - disX), 0) + 'px'
@@ -128,9 +127,70 @@
         dom.getElementById('output-iframe').classList.add('disable-mouse-events')
     });
 
+    // 拖动 预览区域-日志区域 大小
+    outputLogTitle.addEventListener('mousedown', function (e) {
+        e = e || window.event;
+        e.preventDefault ? e.preventDefault() : (e.returnValue = false);
+
+        let oh = outputContainer.offsetHeight // 整块区域高度
+        let th = this.offsetHeight // 控制台 标题高度
+        let dh = this.parentNode.offsetHeight // 控制台高度
+        let oldY = e.clientY
+        dom.onmousemove = e => {
+            this.parentNode.style.height = Math.min(Math.max(dh + oldY - e.clientY, th), oh) + 'px'
+        };
+
+        dom.onmouseup = () => {
+            dom.onmousemove = null;
+            dom.onmouseup = null;
+            dom.getElementById('output-iframe').classList.remove('disable-mouse-events')
+        };
+
+        dom.getElementById('output-iframe').classList.add('disable-mouse-events')
+    });
+
+    // 显示日志
+    logButton.addEventListener('click', function () {
+        toggle(dom.querySelector('.output-log'), 'hide');
+    })
+
+
     // 保存
     saveCodeButton.addEventListener('click', function () {
         editor.saveAs((dom.title || 'demo') + '.html')
     })
 
+    // 日志列表
+    const getLogInfo = ({ type, message }) => {
+        let div = document.createElement('div')
+        div.className = `console-log console-log-${type}`
+        div.innerText = message
+        return div
+    }
+
+    // 清理日志
+    const clearLog = () => {
+        outputLogBody.innerHTML = ''
+    }
+
+    // 关闭日志面板
+    dom.getElementById('close-log').addEventListener('click', function () {
+        toggle(dom.querySelector('.output-log'), 'hide');
+    })
+
+    dom.getElementById('clear-log').addEventListener('click', clearLog)
+
+    // 日志消息
+    window.addEventListener('message', function (e) {
+        let data = e.data
+        if (data.type === 'iframe-error') {
+            outputLogBody.append(getLogInfo({ type: 'error', message: data.message.trim() }))
+        } else if (data.type === 'runcode-console') {
+            if (data.method === 'clear') {
+                clearLog()
+            } else {
+                outputLogBody.append(getLogInfo({ type: data.method, message: data.args.join('') }))
+            }
+        }
+    })
 })()

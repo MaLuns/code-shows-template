@@ -1,15 +1,15 @@
-* {
-    padding   : 0;
-    margin    : 0;
-    box-sizing: border-box;
-}
-
 @header-height: 60px; // 头部高度
 @main-bg      : #212121; // 主背景色
 @font-color   : #c3c3c3; // 主字体色
 @iframe-bg    : #272727; // iframe 背景色
 @border-color : #2c2c2c; // 边框色
 @edit-height  : 350px; // 编辑器高度
+
+* {
+    padding   : 0;
+    margin    : 0;
+    box-sizing: border-box;
+}
 
 html {
     background-color: @main-bg;
@@ -108,51 +108,6 @@ body {
             }
         }
     }
-
-    .button {
-        cursor         : pointer;
-        display        : inline-flex;
-        align-items    : center;
-        justify-content: center;
-        vertical-align : middle;
-        text-shadow    : none;
-        line-height    : 1.2em;
-        white-space    : nowrap;
-        text-overflow  : ellipsis;
-        text-decoration: none;
-        font-weight    : 400;
-        padding        : 10px 16px;
-        border         : 1px solid transparent;
-        border-radius  : 5px;
-        color          : @font-color;
-        background     : linear-gradient(225deg, #181818, #2e2e2e);
-        box-shadow     : -5px 5px 10px #191919, 5px -5px 10px #292929;
-
-        &:active {
-            transform: translateY(1px);
-        }
-
-        &:hover {
-            background    : linear-gradient(225deg, #252525, #414141);
-            color         : #dbdbdb;
-            outline-offset: 3px;
-        }
-
-        >svg {
-            width         : 16px;
-            height        : 16px;
-            display       : inline-block;
-            pointer-events: none;
-            vertical-align: bottom;
-            fill          : @font-color;
-        }
-
-        &[data-has-icon] {
-            >svg:first-child {
-                margin-right: .35em;
-            }
-        }
-    }
 }
 
 .layout-main {
@@ -160,6 +115,7 @@ body {
     background-color: @main-bg;
     display         : flex;
 
+    // 编辑器面板
     .editor-container {
         display: flex;
 
@@ -168,10 +124,6 @@ body {
             flex    : 1;
             height  : 100%;
             overflow: hidden;
-
-            /* &+.editor-item {
-                margin-left: 10px;
-            } */
 
             .editor-title {
                 padding         : 0 16px;
@@ -191,7 +143,7 @@ body {
     }
 
     .resizer-x {
-        cursor          : col-resize;
+        //cursor          : col-resize;
         background-color: @main-bg;
 
         &.hide {
@@ -204,21 +156,7 @@ body {
         background-color: @main-bg;
     }
 
-    .output-container {
-        flex     : 1;
-        font-size: 0;
-        position : relative;
-
-        .result-iframe {
-            z-index         : 1;
-            background-color: #fff;
-        }
-    }
-
-    .disable-mouse-events {
-        pointer-events: none
-    }
-
+    /* 上下布局 */
     &.layout-top,
     &.layout-bottom {
         flex-direction: column;
@@ -261,6 +199,7 @@ body {
         flex-direction: column-reverse;
     }
 
+    /* 左右布局 */
     &.layout-left,
     &.layout-right {
         flex-direction: row;
@@ -298,6 +237,139 @@ body {
     &.layout-right {
         flex-direction: row-reverse;
     }
+
+    // 输出面板
+    .output-container {
+        position      : relative;
+        flex          : 1;
+        min-height    : 0;
+        min-width     : 0;
+        display       : flex;
+        flex-direction: column;
+        overflow      : hidden;
+
+        // 预览面板
+        .result-iframe {
+            flex            : 1;
+            z-index         : 1;
+            min-height      : 0;
+            background-color: #fff;
+            block-size      : auto;
+        }
+
+        // 日志面板
+        .output-log {
+            background-color: @iframe-bg;
+            max-height      : 100%;
+            height          : 100px;
+
+            &.hide {
+                display: none;
+            }
+
+            .output-log-title {
+                cursor          : row-resize;
+                font-size       : 14px;
+                height          : 36px;
+                background-color: @main-bg;
+                color           : @font-color;
+                border-top      : 1px solid @border-color;
+                border-bottom   : 1px solid @border-color;
+                display         : flex;
+                justify-content : space-between;
+
+                .output-log-title-left {
+                    padding         : 0 10px;
+                    line-height     : 36px;
+                    display         : inline-block;
+                    background-color: @iframe-bg;
+                }
+
+                .output-log-title-right {
+                    padding: 3px 10px;
+                }
+            }
+
+            .output-log-body {
+                overflow-y: auto;
+                height    : 100%;
+
+                &::-webkit-scrollbar {
+                    width : 10px;
+                    height: 10px;
+                }
+
+                &::-webkit-scrollbar-thumb {
+                    background: #494b5a;
+                }
+
+                &::-webkit-scrollbar-track {
+                    background: 0 0;
+                }
+            }
+        }
+    }
+
+    .disable-mouse-events {
+        pointer-events: none
+    }
+}
+
+// 按钮
+.button {
+    cursor         : pointer;
+    display        : inline-flex;
+    align-items    : center;
+    justify-content: center;
+    vertical-align : middle;
+    text-shadow    : none;
+    line-height    : 1.2em;
+    white-space    : nowrap;
+    text-overflow  : ellipsis;
+    text-decoration: none;
+    font-weight    : 400;
+    padding        : 10px 16px;
+    border         : 1px solid transparent;
+    border-radius  : 5px;
+    color          : @font-color;
+    background     : linear-gradient(225deg, #181818, #2e2e2e);
+    box-shadow     : -5px 5px 10px #191919, 5px -5px 10px #292929;
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    &:hover {
+        background    : linear-gradient(225deg, #252525, #414141);
+        color         : #dbdbdb;
+        outline-offset: 3px;
+    }
+
+    >svg {
+        width         : 16px;
+        height        : 16px;
+        display       : inline-block;
+        pointer-events: none;
+        vertical-align: bottom;
+        fill          : @font-color;
+    }
+
+    &.small {
+        line-height: 1em;
+        padding    : 6px 10px;
+
+        >svg {
+            width : 12px;
+            height: 12px;
+        }
+    }
+
+
+    &[data-has-icon] {
+        >svg:first-child {
+            margin-right: .35em;
+        }
+    }
 }
 
 .layout-button {
@@ -323,5 +395,22 @@ body {
         svg {
             transform: rotate(90deg);
         }
+    }
+}
+
+// 日志样式
+.console-log {
+    white-space  : pre;
+    font-size    : 13px;
+    padding      : 10px;
+    color        : #fff;
+    border-bottom: 1px solid #555;
+
+    &.console-log-error {
+        background: #f003;
+    }
+
+    &.console-log-warn {
+        background: #ff03;
     }
 }
