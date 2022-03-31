@@ -2,9 +2,12 @@
     <%- include('head') %>
     <% if(page.cdn){ %> 
         <%- js(page.cdn.css) %>
-        <%- js(page.cdn.js) %>
     <% } %> 
-    <%- tag('style', page.code.style.text) %>
+    <%- page.preview.style ? tag('style', page.preview.style) : '' %>
 </head>
 
-<%- tag('body',{style:'margin: 0;'}, [page.code.html.text,tag('script', page.code.script.text)]) %>
+<%- tag('body',{style:'margin: 0;'},[
+    page.preview.html ? page.preview.html : '',
+    page.cdn ? js(page.cdn.js) : '',
+    page.preview.script  ? tag('script', page.preview.script) : ''
+]) %>

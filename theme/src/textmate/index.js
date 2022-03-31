@@ -67,7 +67,6 @@ export const liftOff = async (languageId, editor) => {
         monaco.languages.register({ id: languageId })
     }
 
-    // link: 
     // fix：https://github.com/Microsoft/monaco-editor/issues/884
     let loop = () => {
         if (hasGetWorkUrl) {
@@ -88,7 +87,7 @@ export const loadTheme = async (name) => {
     if (cacheTheme[name]) {
         monaco.editor.setTheme(name)
     } else {
-        let themeData = await (await fetch(`${basepath}/codetheme/${name}.json`)).json()
+        let themeData = await (await fetch(`${basepath}/vsctheme/${name}.json`)).json()
         cacheTheme[name] = themeData
         monaco.editor.defineTheme(name, themeData)
         monaco.editor.setTheme(name)

@@ -43,7 +43,8 @@ module.exports.baseConf = {
     },
     resolve: {
         fallback: {
-            path: false
+            path: false,
+            crypto: false
         }
     },
     plugins: [
@@ -61,8 +62,9 @@ module.exports.baseConf = {
             patterns:
                 [
                     { from: './src/grammars', to: path.resolve(__dirname, '../source/script/editor/grammars') },
-                    { from: './src/themes', to: path.resolve(__dirname, '../source/script/editor/codetheme') },
-                    { from: './node_modules/onigasm/lib/onigasm.wasm', to: path.resolve(__dirname, '../source/script/editor/onigasm') }
+                    { from: './src/themes', to: path.resolve(__dirname, '../source/script/editor/vsctheme') },
+                    { from: './src/transform/parses', to: path.resolve(__dirname, '../source/script/editor/parses') },
+                    { from: './node_modules/onigasm/lib/onigasm.wasm', to: path.resolve(__dirname, '../source/script/editor/onigasm') },
                 ]
         })
     ]

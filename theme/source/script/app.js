@@ -1,7 +1,7 @@
 (function () {
     const dom = document;
     const layouts = ['top', 'left', 'bottom', 'right']
-    let currentLayout = 'top';
+    let currentLayout = 'left';
     // 按钮
     const layoutButton = dom.getElementById('layout-button')
     const runCodeButton = dom.getElementById('run-code')
@@ -44,14 +44,12 @@
     // 初始化编辑器
     editor.init().then(() => {
         // 注册插件
-        // cssFormatMonaco(monaco);
     })
 
     // 编辑器加载完成
     editor.addEventListener('reader', function () {
         this.runCode();
         dom.body.classList.remove('loading');
-
     })
 
     // 折叠

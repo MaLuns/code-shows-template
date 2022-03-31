@@ -1,5 +1,23 @@
-// monaco editor包含的语言，可通过vue.config.js的MonacoWebpackPlugin插件进行配置
-export const monacoEditorInnerLanguages = ['css', 'html', 'javascript', 'less', 'pug', 'scss', 'typescript', 'coffee']
+// monaco editor 包含的语言
+export const monacoEditorInnerLanguages = ['coffee', 'css', , 'html', 'javascript', 'json', 'less', 'pug', , 'scss', 'typescript', 'markdown']
+
+// Monaco Editor 支持的语言
+export const supportLanguage = {
+    css: 'css',
+    less: 'less',
+    scss: 'scss',
+    sass: 'scss',
+    stylus: 'stylus',
+    html: 'html',
+    pug: 'pug',
+    javascript: 'javascript',
+    babel: 'javascript',
+    typescript: 'typescript',
+    coffeescript: 'coffeescript',
+    vue2: 'vue2',
+    vue3: 'vue3'
+}
+
 
 // 语言id到作用域名称的映射
 export const scopeNameMap = {
@@ -9,10 +27,13 @@ export const scopeNameMap = {
     less: 'source.css.less',
     scss: 'source.css.scss',
     sass: 'source.sassdoc',
+    stylus: 'source.stylus',
     typescript: 'source.ts',
     javascript: 'source.js',
     javascriptreact: 'source.js.jsx',
-    coffeescript: 'source.coffee'
+    coffeescript: 'source.coffee',
+    vue2: 'source.vue',
+    vue3: 'source.vue'
 }
 
 // 作用域名称到语法文件的映射
@@ -25,7 +46,14 @@ export const tmGrammarJsonMap = {
     'source.css.scss': 'scss.tmLanguage.json',
     'source.sass': 'scss.tmLanguage.json',
     'source.sassdoc': 'sassdoc.tmLanguage.json',
-    'source.stylus': 'css.tmLanguage.json',
+    'source.postcss': {
+        format: 'plist',
+        path: 'postcss.tmLanguage',
+    },
+    'source.stylus': {
+        format: 'plist',
+        path: 'stylus.tmLanguage',
+    },
     'source.ts': 'TypeScript.tmLanguage.json',
     'source.js': 'JavaScript.tmLanguage.json',
     'source.js.jsx': 'JavaScriptReact.tmLanguage.json',
@@ -33,5 +61,6 @@ export const tmGrammarJsonMap = {
     'source.js.regexp': {
         format: 'plist',
         path: 'Regular Expressions (JavaScript).tmLanguage'
-    }
+    },
+    'source.vue': 'vue.tmLanguage.json',
 }

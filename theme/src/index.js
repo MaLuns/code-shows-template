@@ -3,12 +3,14 @@ import Iframe from './Iframe';
 import transform from './transform'
 import { createHtml, createElement as c, getElement, debounce } from './utils'
 import { liftOff, initMonacoEditor, loadTheme } from './textmate'
-import { cssFormatter } from './formatters';
+import { cssFormatter, pugFormater } from './formatters';
+import { supportLanguage } from './config';
 
 const basepath = (window._ROOT_PATH || '') + '/asset/script'
 
 // 初始化 css 格式化
 const cssFormt = cssFormatter()
+const pugFormt = pugFormater()
 
 class VEditor extends EventTarget {
     constructor(codes, options) {
@@ -33,6 +35,8 @@ class VEditor extends EventTarget {
             sandboxAttributes: this.options.sandboxAttributes
         }) : null;
 
+
+        this.editors = []
     }
 
     // 初始化
@@ -41,7 +45,7 @@ class VEditor extends EventTarget {
             return Promise.reject(new Error('container is required'))
         }
         await initMonacoEditor()
-        let that = this;
+
         let { codes, config, containerElement } = this;
         config.theme = config.theme || 'MonokaiPro'
 
@@ -49,7 +53,8 @@ class VEditor extends EventTarget {
 
         return new Promise((resolve, reject) => {
             resolve()
-            // 编辑器配置
+
+            //#region 编辑器配置
             const def_config = {
                 lineNumbers: false,
                 automaticLayout: true,
@@ -64,10 +69,11 @@ class VEditor extends EventTarget {
                 },
                 ...config
             };
+            //#endregion
 
             //#region 监听编辑器创建成功
-            const readerEvent = debounce(() => that.dispatchEvent(new CustomEvent('reader')), 500)
-            const _runCode = debounce(() => that.runCode(), 2000)
+            const readerEvent = debounce(() => this.dispatchEvent(new CustomEvent('reader')), 1000)
+            const _runCode = debounce(() => this.runCode(), 1000)
             monaco.editor.onDidCreateEditor(codeEditor => {
                 setTimeout(() => {
                     codeEditor.getAction(['editor.action.formatDocument']).run(); // 格式化
@@ -95,14 +101,23 @@ class VEditor extends EventTarget {
                     fragment.appendChild(c('div', { class: 'resizer-x', "data-editor": index + 1 }))
                 }
 
+                if (['vue2', 'vue3'].includes(code.language)) {
+                    code.source = code.source.replace(/<\\\/script>/g, '</script>')
+                }
+
                 var editro = monaco.editor.create(edit, {
                     ...def_config,
                     value: code.source,
-                    language: code.language,
+                    language: supportLanguage[code.language],
                 })
 
-                liftOff(code.language, editro) // 替换 textmate
+                liftOff(supportLanguage[code.language], editro) // 替换 textmate
                 transform.load(code.language) // 加载预处理语言 转换器
+
+                this.editors.push({
+                    editro,
+                    language: code.language
+                })
             });
             containerElement.appendChild(fragment)
             //#endregion
@@ -141,25 +156,28 @@ class VEditor extends EventTarget {
 
     async _getCode () {
         const { options } = this
-        const models = monaco.editor.getModels()
-        const tasks = models.map(model => {
-            return transform.run(model._languageId, model.getValue()).catch(() => null)
+        const tasks = this.editors.map(item => {
+            return transform.run(item.language, item.editro.getValue()).catch(e => {
+                throw e
+            })
         })
 
         const results = await Promise.all(tasks);
-        const code = {
+        let code = {
             jscdn: [basepath + '/console.js'].concat(options.jsCDN),
             csscdn: options.cssCDN
         };
         results.forEach(element => {
-            if (element.result) {
-                code[element.type] = element.result;
+            if (element) {
+                code = {
+                    ...code,
+                    ...element
+                }
             }
         });
 
         return code
     }
-
 }
 
 VEditor.prototype.transform = transform
