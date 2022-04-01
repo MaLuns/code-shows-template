@@ -24,7 +24,8 @@
         "ignore": []
     },
     "theme": {
-        "layout": "view"
+        "layout": "view",
+        "use": "default"
     },
     "pagination": {
         "dir": "page",
