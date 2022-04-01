@@ -5,3 +5,4 @@ db.json
 dist
 node_modules
 npm-debug.log
+source/script/editor
