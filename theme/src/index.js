@@ -6,7 +6,7 @@ import { liftOff, initMonacoEditor, loadTheme } from './textmate'
 import { cssFormatter, pugFormater } from './formatters';
 import { supportLanguage } from './config';
 
-const basepath = (window._ROOT_PATH || '') + '/asset/script'
+const basepath = (window._ROOT_PATH || '/') + 'asset/script'
 
 // 初始化 css 格式化
 const cssFormt = cssFormatter()

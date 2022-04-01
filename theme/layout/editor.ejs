@@ -76,7 +76,7 @@
     </main>
     <%- variable('_CODE_INFO',page.code) %>
     <%- variable('_CODE_CDN',page.cdn) %>
-    <%- variable('_VS_PATH',url_format('asset/script/monaco-editor/vs')) %>
+    <%- variable('_ROOT_PATH',config.site.root) %>
     <%- js([ 
       'asset/script/editor/index.min.js' ,
        'asset/script/app.js' ]) %>

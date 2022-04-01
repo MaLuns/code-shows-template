@@ -1,6 +1,6 @@
 import loadjs from 'loadjs'
 
-const parsePath = (window._ROOT_PATH || '') + '/asset/script/editor/parses'
+const parsePath = (window._ROOT_PATH || '/') + 'asset/script/editor/parses'
 const store = {};
 
 const asyncLoad = async (resources, name) => {

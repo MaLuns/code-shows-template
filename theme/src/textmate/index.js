@@ -5,7 +5,7 @@ import { loadWASM } from "onigasm"
 import { monacoEditorInnerLanguages, scopeNameMap, tmGrammarJsonMap } from '../config'
 
 const cacheTheme = {}
-const basepath = (window._ROOT_PATH || '') + '/asset/script/editor'
+const basepath = (window._ROOT_PATH || '/') + 'asset/script/editor'
 let hasGetWorkUrl = false
 
 // 初始化编辑器
