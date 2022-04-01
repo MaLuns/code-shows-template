@@ -1,5 +1,5 @@
 {
-  "name": "code-shows-theme",
+  "name": "code-shows-theme-default",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -36,5 +36,11 @@
     "monaco-textmate": "^3.0.1",
     "onigasm": "^2.2.5",
     "pug-beautify": "^0.1.1"
-  }
+  },
+  "files": [
+    "/layout",
+    "/source",
+    "babel.config.json",
+    "package.json"
+  ]
 }
